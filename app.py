@@ -456,10 +456,11 @@ def admin_panel():
     # All users (exclude admin from stats display if desired, but show all)
     users = db.execute('SELECT * FROM users ORDER BY id ASC').fetchall()
 
-    # Total video count
-    total_videos = db.execute('SELECT COUNT(*) as cnt FROM videos').fetchone()['cnt']
+    # All videos for reference
+    videos = db.execute('SELECT * FROM videos ORDER BY id ASC').fetchall()
+    total_videos = len(videos)
 
-    # Per-user stats
+    # Per-user stats + per-video progress
     user_stats = []
     for user in users:
         stats = db.execute('''
@@ -469,6 +470,34 @@ def admin_panel():
             FROM watch_progress WHERE user_id = ?
         ''', (user['id'],)).fetchone()
 
+        # Get detailed progress for every video
+        progress_rows = db.execute('''
+            SELECT wp.video_id, wp.watched_seconds, wp.time_spent, wp.completed,
+                   v.title, v.duration, v.duration_seconds, v.category
+            FROM watch_progress wp
+            JOIN videos v ON v.id = wp.video_id
+            WHERE wp.user_id = ?
+            ORDER BY v.id ASC
+        ''', (user['id'],)).fetchall()
+
+        video_progress = []
+        for row in progress_rows:
+            dur = row['duration_seconds'] if row['duration_seconds'] else 0
+            pct = round((row['time_spent'] / dur) * 100, 1) if dur > 0 else 0
+            if pct > 100:
+                pct = 100
+            video_progress.append({
+                'video_id': row['video_id'],
+                'title': row['title'],
+                'category': row['category'],
+                'duration': row['duration'],
+                'duration_seconds': dur,
+                'watched_seconds': row['watched_seconds'],
+                'time_spent': row['time_spent'],
+                'completed': bool(row['completed']),
+                'percent': pct,
+            })
+
         user_stats.append({
             'id': user['id'],
             'username': user['username'],
@@ -477,6 +506,7 @@ def admin_panel():
             'created_at': user['created_at'],
             'completed_count': stats['completed_count'],
             'total_time': stats['total_time'],
+            'video_progress': video_progress,
         })
 
     db.close()

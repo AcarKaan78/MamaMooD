@@ -8,22 +8,23 @@
         <!-- Page Header -->
         <div class="page-header animate-in">
             <h1 class="page-title">Admin Panel</h1>
-            <p class="page-subtitle">Kullanıcı yönetimi ve izleme istatistikleri</p>
+            <p class="page-subtitle">Kullanici yonetimi ve izleme istatistikleri</p>
         </div>
 
         <!-- Users Table -->
         <div class="admin-section animate-in">
-            <h2 class="admin-section-title">Kullanıcılar</h2>
+            <h2 class="admin-section-title">Kullanicilar</h2>
             <div class="admin-table-wrap">
                 <table class="admin-table">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Kullanıcı Adı</th>
-                            <th>Şifre</th>
+                            <th>Kullanici Adi</th>
+                            <th>Sifre</th>
                             <th>Tamamlanan Video</th>
-                            <th>Toplam İzleme Süresi</th>
-                            <th>Kayıt Tarihi</th>
+                            <th>Toplam Izleme Suresi</th>
+                            <th>Kayit Tarihi</th>
+                            <th>Detay</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -51,7 +52,87 @@
                                 {% endif %}
                             </td>
                             <td>{{ u.created_at[:10] if u.created_at else '-' }}</td>
+                            <td>
+                                {% if u.video_progress %}
+                                <button class="btn-detail" onclick="toggleUserDetail('user-detail-{{ u.id }}', this)">
+                                    <span class="detail-arrow">&#9654;</span> Gor
+                                </button>
+                                {% else %}
+                                <span class="no-data-text">Veri yok</span>
+                                {% endif %}
+                            </td>
                         </tr>
+                        <!-- Expandable Detail Row -->
+                        {% if u.video_progress %}
+                        <tr class="detail-row" id="user-detail-{{ u.id }}" style="display: none;">
+                            <td colspan="7" class="detail-cell">
+                                <div class="detail-inner">
+                                    <div class="detail-header">
+                                        <h3 class="detail-title">{{ u.username }} - Video Izleme Detaylari</h3>
+                                        <div class="detail-summary">
+                                            <span class="detail-summary-item">
+                                                Tamamlanan: <strong>{{ u.completed_count }}/{{ total_videos }}</strong>
+                                            </span>
+                                            <span class="detail-summary-item">
+                                                Izlenen:  <strong>{{ u.video_progress | length }}</strong> video
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="admin-table-wrap">
+                                        <table class="admin-table detail-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Video</th>
+                                                    <th>Kategori</th>
+                                                    <th>Video Suresi</th>
+                                                    <th>Izlenen Sure</th>
+                                                    <th>Ilerleme</th>
+                                                    <th>Durum</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for vp in u.video_progress %}
+                                                <tr>
+                                                    <td>
+                                                        <span class="detail-video-title">{{ vp.title }}</span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="category-badge">{{ vp.category }}</span>
+                                                    </td>
+                                                    <td>{{ vp.duration }}</td>
+                                                    <td>
+                                                        {% set ts = vp.time_spent | int %}
+                                                        {% set tm = (ts // 60) | int %}
+                                                        {% set tss = (ts % 60) | int %}
+                                                        {% if tm > 0 %}
+                                                            {{ tm }} dk {{ tss }} sn
+                                                        {% else %}
+                                                            {{ tss }} sn
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <div class="progress-bar-wrap">
+                                                            <div class="progress-bar" style="width: {{ vp.percent }}%">
+                                                                <span class="progress-text">%{{ vp.percent }}</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        {% if vp.completed %}
+                                                            <span class="status-badge status-completed">Tamamlandi</span>
+                                                        {% else %}
+                                                            <span class="status-badge status-watching">Devam Ediyor</span>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
                         {% endfor %}
                     </tbody>
                 </table>
@@ -60,19 +141,19 @@
 
         <!-- Create User Form -->
         <div class="admin-section animate-in">
-            <h2 class="admin-section-title">Yeni Kullanıcı Oluştur</h2>
+            <h2 class="admin-section-title">Yeni Kullanici Olustur</h2>
             <form method="POST" action="{{ url_for('admin_create_user') }}" class="admin-form">
                 <div class="admin-form-row">
                     <div class="form-group">
-                        <label for="username" class="form-label">Kullanıcı Adı</label>
-                        <input type="text" id="username" name="username" class="form-input" placeholder="Kullanıcı adı" required>
+                        <label for="username" class="form-label">Kullanici Adi</label>
+                        <input type="text" id="username" name="username" class="form-input" placeholder="Kullanici adi" required>
                     </div>
                     <div class="form-group">
-                        <label for="password" class="form-label">Şifre</label>
-                        <input type="text" id="password" name="password" class="form-input" placeholder="Şifre" required>
+                        <label for="password" class="form-label">Sifre</label>
+                        <input type="text" id="password" name="password" class="form-input" placeholder="Sifre" required>
                     </div>
                     <div class="form-group admin-form-btn-group">
-                        <button type="submit" class="btn btn-primary">Kullanıcı Oluştur</button>
+                        <button type="submit" class="btn btn-primary">Kullanici Olustur</button>
                     </div>
                 </div>
             </form>
@@ -80,4 +161,22 @@
 
     </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleUserDetail(id, btn) {
+    var row = document.getElementById(id);
+    var arrow = btn.querySelector('.detail-arrow');
+    if (row.style.display === 'none') {
+        row.style.display = 'table-row';
+        arrow.classList.add('open');
+        btn.classList.add('active');
+    } else {
+        row.style.display = 'none';
+        arrow.classList.remove('open');
+        btn.classList.remove('active');
+    }
+}
+</script>
 {% endblock %}
