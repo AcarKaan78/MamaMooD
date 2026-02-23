@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mamamood{% endblock %} — Mamamood</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/logo.svg') }}">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- ========== NAVBAR ========== -->
+    <nav class="navbar">
+        <div class="container navbar-inner">
+            <!-- Logo -->
+            <a href="{{ url_for('home') }}" class="navbar-logo">
+                <img
+                    src="{{ url_for('static', filename='images/logo.svg') }}"
+                    alt="Mamamood"
+                    height="40"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"
+                >
+                <span class="navbar-logo-text" style="display:none;">mamamood</span>
+            </a>
+
+            <!-- Desktop Nav Links -->
+            <div class="navbar-links" id="navbarLinks">
+                <a href="{{ url_for('home') }}" class="nav-link {% if request.endpoint == 'home' %}active{% endif %}">Ana Sayfa</a>
+                <a href="{{ url_for('hakkinda') }}" class="nav-link {% if request.endpoint == 'hakkinda' %}active{% endif %}">Hakkında</a>
+                {% if session.get('user_id') %}
+                    <a href="{{ url_for('video_list') }}" class="nav-link {% if request.endpoint == 'video_list' %}active{% endif %}">Videolar</a>
+                    {% if session.get('is_admin') %}
+                        <a href="{{ url_for('admin_panel') }}" class="nav-link {% if request.endpoint == 'admin_panel' %}active{% endif %}">Admin</a>
+                    {% endif %}
+                    <span class="nav-greeting">Merhaba, {{ session.get('username') }} 💕</span>
+                    <a href="{{ url_for('logout') }}" class="btn btn-nav">Çıkış Yap</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-primary btn-nav">Giriş Yap</a>
+                {% endif %}
+            </div>
+
+            <!-- Mobile Hamburger -->
+            <button class="hamburger" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="Menüyü aç">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <a href="{{ url_for('home') }}" class="nav-link {% if request.endpoint == 'home' %}active{% endif %}">Ana Sayfa</a>
+            <a href="{{ url_for('hakkinda') }}" class="nav-link {% if request.endpoint == 'hakkinda' %}active{% endif %}">Hakkında</a>
+            {% if session.get('user_id') %}
+                <a href="{{ url_for('video_list') }}" class="nav-link {% if request.endpoint == 'video_list' %}active{% endif %}">Videolar</a>
+                {% if session.get('is_admin') %}
+                    <a href="{{ url_for('admin_panel') }}" class="nav-link {% if request.endpoint == 'admin_panel' %}active{% endif %}">Admin</a>
+                {% endif %}
+                <span class="nav-greeting">Merhaba, {{ session.get('username') }} 💕</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-nav">Çıkış Yap</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-primary btn-nav">Giriş Yap</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- ========== FLASH MESSAGES ========== -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-container">
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">
+                        <span class="flash-text">{{ message }}</span>
+                        <button class="flash-close" onclick="this.parentElement.remove()">&times;</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer">
+        <div class="container footer-inner">
+            <a href="{{ url_for('home') }}" class="footer-logo">
+                <img
+                    src="{{ url_for('static', filename='images/logo.svg') }}"
+                    alt="Mamamood"
+                    height="32"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"
+                >
+                <span class="footer-logo-text" style="display:none;">mamamood</span>
+            </a>
+            <p class="footer-tagline">Annelik yolculuğunuzda yanınızdayız</p>
+            <p class="footer-copyright">&copy; 2025 Mamamood. Sevgiyle yapıldı 💕</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

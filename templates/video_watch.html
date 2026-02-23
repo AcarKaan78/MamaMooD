@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}{{ video.title }}{% endblock %}
+
+{% block content %}
+
+{% set gradient_map = {
+    '1. Trimester': 'linear-gradient(135deg, #e8a0b4, #c89bd4)',
+    '2. Trimester': 'linear-gradient(135deg, #e8a0b4, #f0c4a8)',
+    '3. Trimester': 'linear-gradient(135deg, #6a2d75, #9b59a6)',
+    'Beslenme': 'linear-gradient(135deg, #6a9b7b, #a8d5ba)',
+    'Sağlık': 'linear-gradient(135deg, #c89bd4, #a8c4e0)',
+    'Doğum Hazırlığı': 'linear-gradient(135deg, #e8a0b4, #e0a458)',
+    'Doğum Sonrası': 'linear-gradient(135deg, #a8c4e0, #c89bd4)',
+    'Hazırlık': 'linear-gradient(135deg, #f0e6d3, #e8a0b4)'
+} %}
+
+<!-- Lock Modal -->
+{% if is_locked and required_video %}
+<div class="modal-backdrop" id="lockModal">
+    <div class="modal-card">
+        <div class="modal-emoji">🌸</div>
+        <h2 class="modal-title">Bir dakika, güzel anne!</h2>
+        <p class="modal-text">Bu videoyu izleyebilmek için önce sıradaki videoyu tamamlamanız gerekiyor.</p>
+        <div class="modal-required">
+            <span class="modal-required-label">Önce izlemeniz gereken video:</span>
+            <span class="modal-required-name">{{ required_video.title }}</span>
+        </div>
+        <a href="{{ url_for('video_watch', video_id=required_video.id) }}" class="btn btn-primary btn-lg modal-btn">Videoya Git</a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Video Player Section -->
+<section class="video-player-section">
+    <div class="container video-player-container">
+        <!-- Back link -->
+        <a href="{{ url_for('video_list') }}" class="back-link animate-in">← Kütüphaneye Dön</a>
+
+        <!-- Player -->
+        <div class="video-player-wrapper animate-in" style="background: {{ gradient_map.get(video.category, 'linear-gradient(135deg, #6a2d75, #9b59a6)') }};">
+            <video
+                class="video-player"
+                controls
+                preload="metadata"
+                id="mainPlayer"
+                data-video-id="{{ video.id }}"
+                data-resume-time="{{ resume_time }}"
+                data-duration-seconds="{{ video.duration_seconds }}"
+            >
+                <source src="{{ url_for('serve_video', filename=video.filename) }}" type="video/mp4">
+                Tarayıcınız video etiketini desteklemiyor.
+            </video>
+        </div>
+
+        <!-- Video Info -->
+        <div class="video-detail animate-in">
+            <h1 class="video-detail-title">{{ video.title }}</h1>
+            <p class="video-duration-info">Süre: {{ video.duration }}</p>
+            <p class="video-detail-desc">{{ video.description }}</p>
+        </div>
+    </div>
+</section>
+
+<!-- Next Video -->
+<section class="related-section">
+    <div class="container">
+        {% if next_video %}
+            <h2 class="section-title animate-in">Sıradaki Video</h2>
+            <div class="next-video-wrapper animate-in" id="nextVideoWrapper">
+                <!-- Locked state (hidden if already completed) -->
+                <div class="next-video-locked" id="nextVideoLocked" {% if is_current_completed %}style="display:none;"{% endif %}>
+                    <div class="next-video-locked-inner">
+                        <span class="next-locked-emoji">🌷</span>
+                        <p class="next-locked-text">Önce bu videoyu tamamlayın, sonraki video sizi bekliyor!</p>
+                    </div>
+                </div>
+                <!-- Unlocked state (shown if already completed) -->
+                <a href="{{ url_for('video_watch', video_id=next_video.id) }}" class="next-video-card" id="nextVideoCard" {% if not is_current_completed %}style="display:none;"{% endif %}>
+                    <div class="next-video-thumb" style="background: {{ gradient_map.get(next_video.category, 'linear-gradient(135deg, #6a2d75, #9b59a6)') }};">
+                        {% if next_video.thumbnail %}
+                            <img class="thumb-img" src="{{ url_for('static', filename='thumbnails/' + next_video.thumbnail) }}" alt="{{ next_video.title }}" loading="lazy">
+                        {% endif %}
+                        <div class="play-overlay">
+                            <div class="play-button">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                    <polygon points="5,3 19,12 5,21"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <span class="duration-badge">{{ next_video.duration }}</span>
+                    </div>
+                    <div class="next-video-info">
+                        <h3 class="video-title">{{ next_video.title }}</h3>
+                        <p class="video-desc">{{ next_video.description }}</p>
+                    </div>
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}

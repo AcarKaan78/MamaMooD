@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel{% endblock %}
+
+{% block content %}
+<section class="admin-page">
+    <div class="container">
+
+        <!-- Page Header -->
+        <div class="page-header animate-in">
+            <h1 class="page-title">Admin Panel</h1>
+            <p class="page-subtitle">Kullanıcı yönetimi ve izleme istatistikleri</p>
+        </div>
+
+        <!-- Users Table -->
+        <div class="admin-section animate-in">
+            <h2 class="admin-section-title">Kullanıcılar</h2>
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Kullanıcı Adı</th>
+                            <th>Şifre</th>
+                            <th>Tamamlanan Video</th>
+                            <th>Toplam İzleme Süresi</th>
+                            <th>Kayıt Tarihi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in user_stats %}
+                        <tr {% if u.is_admin %}class="admin-row"{% endif %}>
+                            <td>{{ u.id }}</td>
+                            <td>
+                                <strong>{{ u.username }}</strong>
+                                {% if u.is_admin %}<span class="admin-badge">Admin</span>{% endif %}
+                            </td>
+                            <td><code class="password-text">{{ u.password }}</code></td>
+                            <td>
+                                <span class="stat-pill">{{ u.completed_count }} / {{ total_videos }}</span>
+                            </td>
+                            <td>
+                                {% set hours = (u.total_time // 3600) | int %}
+                                {% set minutes = ((u.total_time % 3600) // 60) | int %}
+                                {% set seconds = (u.total_time % 60) | int %}
+                                {% if hours > 0 %}
+                                    {{ hours }} sa {{ minutes }} dk
+                                {% elif minutes > 0 %}
+                                    {{ minutes }} dk {{ seconds }} sn
+                                {% else %}
+                                    {{ seconds }} sn
+                                {% endif %}
+                            </td>
+                            <td>{{ u.created_at[:10] if u.created_at else '-' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Create User Form -->
+        <div class="admin-section animate-in">
+            <h2 class="admin-section-title">Yeni Kullanıcı Oluştur</h2>
+            <form method="POST" action="{{ url_for('admin_create_user') }}" class="admin-form">
+                <div class="admin-form-row">
+                    <div class="form-group">
+                        <label for="username" class="form-label">Kullanıcı Adı</label>
+                        <input type="text" id="username" name="username" class="form-input" placeholder="Kullanıcı adı" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="form-label">Şifre</label>
+                        <input type="text" id="password" name="password" class="form-input" placeholder="Şifre" required>
+                    </div>
+                    <div class="form-group admin-form-btn-group">
+                        <button type="submit" class="btn btn-primary">Kullanıcı Oluştur</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

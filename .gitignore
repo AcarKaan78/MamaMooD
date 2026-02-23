@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Database
+*.db
+
+# Videos (too large for git)
+static/videos/*.mp4
+static/videos/${f}.mp4
+static/videos/${f}
+
+# Environment
+.env
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cookies/sessions
+*cookies*.txt

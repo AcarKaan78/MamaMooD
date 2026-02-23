@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Psikoeğitim Kütüphanesi{% endblock %}
+
+{% block content %}
+<section class="video-list-page">
+    <div class="container">
+
+        <!-- Page Header -->
+        <div class="page-header animate-in">
+            <h1 class="page-title">Psikoeğitim Kütüphanesi</h1>
+            <p class="page-subtitle">Hamilelik yolculuğunuz için özenle hazırlanmış içerikleri keşfedin</p>
+        </div>
+
+        <!-- Video Grid -->
+        {% set gradient_map = {
+            '1. Trimester': 'linear-gradient(135deg, #e8a0b4, #c89bd4)',
+            '2. Trimester': 'linear-gradient(135deg, #e8a0b4, #f0c4a8)',
+            '3. Trimester': 'linear-gradient(135deg, #6a2d75, #9b59a6)',
+            'Beslenme': 'linear-gradient(135deg, #6a9b7b, #a8d5ba)',
+            'Sağlık': 'linear-gradient(135deg, #c89bd4, #a8c4e0)',
+            'Doğum Hazırlığı': 'linear-gradient(135deg, #e8a0b4, #e0a458)',
+            'Doğum Sonrası': 'linear-gradient(135deg, #a8c4e0, #c89bd4)',
+            'Bebek Bakımı': 'linear-gradient(135deg, #f0e6d3, #e8a0b4)'
+        } %}
+
+        {% if videos | length > 0 %}
+            <div class="video-grid">
+                {% for video in videos %}
+                    {% set is_completed = video.id in completed_ids %}
+                    {% set is_locked = first_unwatched_id is not none and video.id > first_unwatched_id %}
+                    <a href="{{ url_for('video_watch', video_id=video.id) }}" class="video-card animate-in {% if is_locked %}video-card-locked{% endif %}" style="animation-delay: {{ loop.index0 * 0.03 }}s">
+                        <!-- Thumbnail (static image) -->
+                        <div class="video-thumbnail" style="background: {{ gradient_map.get(video.category, 'linear-gradient(135deg, #6a2d75, #9b59a6)') }};">
+                            {% if video.thumbnail %}
+                                <img class="thumb-img" src="{{ url_for('static', filename='thumbnails/' + video.thumbnail) }}" alt="{{ video.title }}" loading="lazy">
+                            {% endif %}
+                            {% if is_locked %}
+                                <div class="lock-overlay">
+                                    <svg class="lock-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                    </svg>
+                                </div>
+                            {% else %}
+                                <div class="play-overlay">
+                                    <div class="play-button">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                            <polygon points="5,3 19,12 5,21"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <span class="duration-badge">{{ video.duration }}</span>
+                            {% if is_completed %}
+                                <span class="completed-badge">✓</span>
+                            {% endif %}
+                        </div>
+                        <!-- Info -->
+                        <div class="video-info">
+                            <h3 class="video-title">{{ video.title }}</h3>
+                            <p class="video-desc">{{ video.description }}</p>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state animate-in">
+                <p>Henüz video bulunmuyor</p>
+            </div>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}

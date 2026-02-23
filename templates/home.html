@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Ana Sayfa{% endblock %}
+
+{% block content %}
+
+<!-- ========== HERO SECTION ========== -->
+<section class="hero">
+    <div class="hero-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <div class="blob blob-4"></div>
+    </div>
+    <div class="container hero-content animate-in">
+        <h1 class="hero-title">Annelik Yolculuğunuzda<br>Yanınızdayız</h1>
+        <p class="hero-subtitle">Hamileliğinizin her aşamasına özel hazırlanmış videoları izleyin — ilk trimesterdan doğum sonrasına kadar.</p>
+        <div class="hero-buttons">
+            {% if session.get('user_id') %}
+                <a href="{{ url_for('video_list') }}" class="btn btn-primary btn-lg">Videoları Keşfet</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg">Hemen Başla</a>
+            {% endif %}
+            <a href="#features" class="btn btn-secondary btn-lg">Daha Fazla</a>
+        </div>
+    </div>
+</section>
+
+<!-- ========== FEATURES SECTION ========== -->
+<section class="features" id="features">
+    <div class="container">
+        <h2 class="section-title animate-in">Neden Mamamood?</h2>
+        <div class="features-grid">
+            <div class="card feature-card animate-in">
+                <div class="feature-icon">🧘</div>
+                <h3 class="feature-title">Uzman İçerikler</h3>
+                <p class="feature-desc">Sertifikalı doğum öncesi uzmanları ve deneyimli anneler tarafından hazırlanan videolar.</p>
+            </div>
+            <div class="card feature-card animate-in">
+                <div class="feature-icon">🎯</div>
+                <h3 class="feature-title">Trimestere Özel</h3>
+                <p class="feature-desc">Hamilelik aşamanıza göre düzenlenmiş içerikler, her zaman size uygun olanı bulun.</p>
+            </div>
+            <div class="card feature-card animate-in">
+                <div class="feature-icon">💜</div>
+                <h3 class="feature-title">Güvenli Alanınız</h3>
+                <p class="feature-desc">Konforunuz düşünülerek tasarlanmış, huzurlu ve yargısız bir ortam.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ========== BOTTOM CTA ========== -->
+<section class="bottom-cta">
+    <div class="container bottom-cta-content animate-in">
+        <h2 class="bottom-cta-title">Yolculuğunuza başlamaya hazır mısınız?</h2>
+        {% if session.get('user_id') %}
+            <a href="{{ url_for('video_list') }}" class="btn btn-primary btn-lg btn-white">Videoları Keşfet</a>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg btn-white">Hemen Başla</a>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}
